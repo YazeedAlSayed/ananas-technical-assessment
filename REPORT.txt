@@ -1,0 +1,99 @@
+Report: Evaluation of Implementation vs. Requirements
+
+Scope note:
+- The analysis is based on the code excerpts provided as the latest version during this session. Where files are not shown (e.g., environments, interceptors, users.json), items are marked as Unknown/Missing with rationale and how to confirm.
+
+1) Login Page
+Requirements:
+- Angular Material form controls for login, Bootstrap layout
+- Authenticate from local JSON (assets/users.json)
+- On success, navigate to lazy-loaded movie module
+- Route guard to protect movie route
+Findings:
+- Login component route exists: src/app/app.routes.ts maps path 'login' to LoginComponent. The component file exists (src/app/auth/login.component.ts), but its template/logic wasn’t reviewed here; cannot confirm Material usage or JSON-based auth. Status: Unknown/Partial.
+- Route guard exists: src/app/shared/auth.guard.ts checks AuthService.token and redirects to /login if absent. Present.
+- Guard application: Movies routes ('' and 'movies') are lazy-loaded without canActivate: [authGuard], so the guard is not currently applied to protect them. Partial.
+- Local JSON for users (assets/users.json): Not shown. AuthService implementation details are not shown. Missing/Unknown.
+Assessment:
+- Present: Login route and guard implementation.
+- Partial: Guard not applied to movies routes; Material/Bootstrap login form cannot be confirmed.
+- Missing/Unknown: JSON-based authentication and users.json.
+
+2) Movie Module (Lazy Loaded)
+Requirements:
+- Lazy-loaded movies module after login.
+- Use Angular Material cards/grid list to display TMDb movies as cards with poster, title, and “View Details”.
+Findings:
+- Lazy loading: app.routes.ts lazy-loads MoviesModule at '' and at 'movies'. Present (note: loads regardless of auth due to missing guard on these routes).
+- MoviesModule: src/app/movies/movies.module.ts imports MatCardModule, MatGridListModule, MatButtonModule, and includes MoviesListComponent and MovieDetailComponent (standalone). Present.
+- UI: MoviesListComponent uses MatCard and Bootstrap grid, showing poster, title, and a “More info” (details) button. Present.
+Assessment: Present.
+
+3) TMDb API Integration
+Requirements:
+- Use TMDb API to fetch and display movie list.
+- API key stored in environment file.
+- Use a service for API calls.
+- Display posters using TMDb images API.
+Findings:
+- Service: src/app/movies/tmdb.service.ts implements discover, search, details, and imageUrl. Present.
+- Environment usage: environment.tmdbBaseUrl, tmdbApiKey, tmdbImageBaseUrl are referenced. Actual environment files not shown. Assumed present but unverified. Present (references).
+- Posters: Components use tmdb.imageUrl(path) to render posters. Present.
+- Extra: Simple NSFW/content filter applied. Not required but present.
+Assessment: Present (with assumption on environment configuration).
+
+4) Movie Detail Page
+Requirements:
+- /movies/:id route.
+- Angular resolver to fetch details before activation.
+- Display details (title, poster, overview, release date, etc.).
+Findings:
+- Routing: src/app/movies/movies-routing.module.ts defines path ':id' with resolve: { movie: movieDetailResolver }. Present.
+- Resolver: src/app/movies/movie-detail.resolver.ts returns TmdbService.details(id). Present.
+- UI: src/app/movies/movie-detail.component.ts displays poster, title, overview, release date, runtime, rating, genres; includes a back button. Present.
+Assessment: Present.
+
+5) TypeScript Usage
+Requirements:
+- Strong typing for services and data models; avoid any.
+- Define interfaces for list items, details, and user credentials.
+Findings:
+- Movies domain: MovieListItem and MovieDetails interfaces are used across service and components. Present.
+- any usage: A few any casts exist for query param parsing in MoviesListComponent; overall typing is strong. Partial but acceptable.
+- User credentials interface: Not shown; AuthService content not reviewed. Unknown.
+Assessment: Present for movie data; Unknown for user typing; minor any usage noted.
+
+6) Interceptors (Loader, Token)
+Requirements:
+- Loader interceptor to show/hide global loader per request.
+- Auth token interceptor to inject token and handle 401 with refresh flow (mock acceptable).
+Findings:
+- Spinner component exists and is included in app.component template (<app-spinner>) but no HttpInterceptor files or providers were shown. Unknown/Missing.
+- No evidence of auth token interceptor or refresh logic registration. Missing/Unknown.
+Assessment: Likely Missing.
+
+7) Bonus (Optional)
+- Search input to filter movies: Present (MoviesListComponent has search and queryParam sync).
+- Shared auth.service.ts to manage auth state: File exists; behavior unverified. Marked Present (exists) but details Unknown.
+
+Evaluation Criteria Summary
+- Code structure and cleanliness: Good modularization and separation (services, resolver, state service). Present.
+- Angular features: Lazy loading (Present), services (Present), routing (Present), guards (Present but not applied to routes), resolvers (Present).
+- TypeScript: Strong for movies; minor any; user typing unknown.
+- Angular Material + Bootstrap: Material components and Bootstrap grid utilities used. Present.
+- Working login/auth flow: Cannot confirm end-to-end; guard not applied to movies routes; users.json and concrete auth flow unknown. Partial/Missing.
+- Responsive and visually pleasant UI: Present (grid layout, cards, responsive columns).
+- Proper usage of interceptors: Not evidenced. Missing.
+- Proper error handling: Basic error messages in list/search; resolver-based fetch for details. Partial.
+
+Recommendations to reach full compliance
+- Apply authGuard to movies routes (either in MoviesRoutingModule or in app.routes for the lazy paths). Consider redirecting unauthenticated default route to /login.
+- Ensure LoginComponent uses Angular Material form-field/input/button with Bootstrap layout; load credentials from assets/users.json (create file) and validate. Define a Credentials interface.
+- Implement AuthService storage of token/state with localStorage; add a mock refreshToken() for 401 flows if you add auth interceptor.
+- Add LoaderInterceptor to toggle SpinnerService on request start/finish; handle concurrent requests robustly.
+- Add AuthTokenInterceptor to attach Authorization header when token exists; on 401, attempt refresh and retry; on failure, logout.
+- Verify environment files contain tmdbBaseUrl, tmdbApiKey, tmdbImageBaseUrl, and are provided in all builds.
+- Reduce any casts by narrowing types for query param handling; add explicit typing for user credentials.
+
+Where to find this report
+- This file: REPORT.txt at the project root.

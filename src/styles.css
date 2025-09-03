@@ -1,0 +1,69 @@
+/* Global theming with light/dark and system support via [data-theme] */
+:root {
+  /* Primary brand color */
+  --primary: #458A5B;
+  /* App background switched to solid color as requested */
+  --app-bg: #F2F4EC;
+  --app-fg: #212529;
+  --app-header-bg: transparent;
+  --app-header-fg: #212529;
+  --card-bg: rgba(255,255,255,0.92);
+  --card-fg: #212529;
+  --muted-fg: #6c757d;
+  --border-color: #dee2e6;
+}
+
+[data-theme="dark"] {
+  --primary: #458A5B;
+  --app-bg: #121212; /* keep solid dark background for readability */
+  --app-fg: #e9ecef;
+  --app-header-bg: #1f1f1f;
+  --app-header-fg: #e9ecef;
+  --card-bg: #1e1e1e;
+  --card-fg: #e9ecef;
+  --muted-fg: #adb5bd;
+  --border-color: #343a40;
+}
+
+html, body {
+  background: var(--app-bg);
+  color: var(--app-fg);
+  min-height: 100%;
+}
+
+/* Make Bootstrap text-muted adapt */
+.text-muted { color: var(--muted-fg) !important; }
+
+/* Material card background/foreground */
+.mat-mdc-card, .movie-card {
+  background: var(--card-bg) !important;
+  color: var(--card-fg);
+}
+
+/* Bootstrap border color harmonization */
+.border, .border-bottom { border-color: var(--border-color) !important; }
+
+/* Primary Ananas gradient button (updated to primary palette) */
+.primary-ananas-button {
+  /* Subtle primary gradient with slight golden tint to match background scheme */
+  --_bg: linear-gradient(90deg, #5FA775 0%, #458A5B 60%, #3C7A50 100%);
+  background: var(--_bg);
+  color: #fff !important;
+  border: none;
+  border-radius: .5rem;
+  padding: .5rem 1rem;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(69,138,91,0.35);
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+/* Ensure Angular Material raised buttons pick the gradient too */
+.primary-ananas-button.mat-mdc-raised-button, .primary-ananas-button.mdc-button {
+  background: var(--_bg) !important;
+  color: #fff !important;
+}
+.primary-ananas-button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(69,138,91,0.45); opacity: .95; }
+.primary-ananas-button:active { transform: translateY(0); box-shadow: 0 4px 12px rgba(69,138,91,0.35); }
+.primary-ananas-button:disabled, .primary-ananas-button[disabled] { opacity: .65; cursor: not-allowed; }
+
+/* Make it play nice with dark mode backgrounds */
+[data-theme="dark"] .primary-ananas-button { box-shadow: 0 6px 16px rgba(0,0,0,0.5); }

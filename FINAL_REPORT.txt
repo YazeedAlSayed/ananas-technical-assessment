@@ -1,0 +1,67 @@
+Final Report: Outcome of the Evaluation Analysis
+
+Scope
+This report maps each evaluation criterion to the current Angular application implementation and highlights optional items and notes.
+
+1) Login Page
+- Angular Material + Bootstrap layout: Implemented. LoginComponent uses MatFormField, MatInput, MatButton, and Bootstrap grid/flex utilities. ✓
+- Authenticate from local JSON: Implemented via AuthService.loadUsers() reading assets/users.json. ✓
+- On success navigate to a lazy-loaded movie module: Implemented (router.navigate(['/movies'])). ✓
+- Basic route guard to protect movie route: Implemented (authGuard on /movies). ✓
+
+2) Movie Module (Lazy Loaded)
+- Lazy-loaded MoviesModule: Implemented via loadChildren in app.routes.ts. ✓
+- Display movies using Material cards/grid list: Implemented (MatCard + layout; MatGridListModule is imported though Bootstrap grid is primarily used). ✓
+- Each movie card: Poster thumbnail, title, and a "More info"/"View Details" button: Implemented in MoviesListComponent template. ✓
+
+3) TMDb API Integration
+- Uses TMDb public API to fetch and display movies: Implemented in TmdbService (discover, search, details). ✓
+- API key stored in environment file: Present in src\environments\environment.ts. ✓
+- Dedicated service handles API calls: TmdbService encapsulates all HTTP calls. ✓
+- Posters displayed via TMDb image base URL: Implemented through TmdbService.imageUrl. ✓
+
+4) Movie Detail Page
+- Clicking "View Details" navigates to /movies/:id: Implemented by MoviesRoutingModule. ✓
+- Angular resolver fetches details before activation: Implemented (movieDetailResolver). ✓
+- Detail page uses Angular Material/standard components to display title, poster, overview, release date, etc.: Implemented in MovieDetailComponent. ✓
+
+5) TypeScript Usage
+- Services use TypeScript interfaces: Implemented (UserCredential, MovieListItem, MovieDetails in shared\models.ts). ✓
+- Clear interfaces for list items, details, and user credentials: Present. ✓
+- Avoid any; strong typing throughout: Implemented (no any in public APIs; rare internal uses are contained). ✓
+
+6) Interceptors (Loader, Token)
+- Loader interceptor: Adds global loader for each API call and removes after response: Implemented via LoaderInterceptor + LoaderService + SpinnerComponent. ✓
+- Auth token interceptor: Adds token and handles errors globally: Implemented (AuthTokenInterceptor attaches Authorization header). ✓
+- 401 flow: Do not logout immediately; attempt refresh, retry request on success; on failure, logout: Implemented with mocked refreshToken in AuthService. ✓
+- Mock server allowance: The refresh cycle is mocked consistently with the brief. ✓
+
+7) Bonus (Optional)
+- Search input to filter movies: Implemented in MoviesListComponent. ✓
+- Shared auth service to manage auth state: Implemented (AuthService using signals + localStorage). ✓
+
+Additional Implementations (UX/Structure Enhancements)
+- Global Logout top bar visible on all routes except the login page. ✓
+- Theme system with light/dark/system modes, persisted in localStorage, follows system changes via matchMedia with event listener fallback and cleanup. ✓
+- Guard to forbid accessing /login when already authenticated (tokenForbiddenIfAuthenticatedGuard). ✓
+- URL-synchronized filters and infinite scroll on the movie list. ✓
+- NSFW filtering using genres/keywords with optional nsfwjs image classification toggle. ✓
+
+Items for Your Decision / Optional Polishing
+- TMDb API key management: Key in environment.ts is fine for the evaluation. For production, consider env variables or a backend proxy. Optional
+- Material GridList vs. Bootstrap: Layout currently uses Bootstrap grid with MatCard. If you prefer explicit MatGridList usage, we can adapt. Optional
+- Refresh token realism: Currently mocked. If desired, we can extend with expiry/refresh simulation or wire to a mock server. Optional
+
+Quick Usage Notes
+- Configure TMDb key: src\environments\environment.ts (tmdbApiKey).
+- Run the app: ng serve (from project root).
+- Demo credentials (assets\users.json): admin/admin123, user/user123, 1/1.
+
+File Locations (Key References)
+- Routing and Guards: src\app\app.routes.ts; src\app\shared\auth.guard.ts; src\app\shared\auth-token.guard.ts; src\app\shared\login.guard.ts
+- Auth and Interceptors: src\app\shared\auth.service.ts; src\app\interceptors\auth-token.interceptor.ts; src\app\interceptors\loader.interceptor.ts; src\app\interceptors\loader.service.ts
+- Movies Feature: src\app\movies\movies.module.ts; src\app\movies\movies-routing.module.ts; src\app\movies\movies-list.component.ts; src\app\movies\movie-detail.component.ts; src\app\movies\movie-detail.resolver.ts; src\app\movies\tmdb.service.ts
+- Theme: src\app\shared\theme.service.ts (system theme evaluation via matchMedia and change listeners)
+
+Final Assessment
+All mandatory evaluation points are implemented and working according to the codebase. Optional enhancements are already present; production-hardening (API key handling, realistic refresh endpoint) can be addressed if required.
